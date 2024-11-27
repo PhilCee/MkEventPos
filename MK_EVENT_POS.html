@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Counter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .buttonContainer {
+            margin-bottom: 20px;
+        }
+        .categoryHeader {
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 1em;
+            margin: 5px;
+            cursor: pointer;
+        }
+        #results {
+            margin-top: 30px;
+        }
+        #resultList {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        #resultList li {
+            margin: 5px 0;
+        }
+        #grandTotal, #totalClicks {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        #resetButton, #downloadButton {
+            margin-top: 20px;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="beerButtons" class="buttonContainer">
+        <div class="categoryHeader">Beer</div>
+    </div>
+    <div id="alcoholButtons" class="buttonContainer">
+        <div class="categoryHeader">Alcohol</div>
+    </div>
+    <div id="softdrinksButtons" class="buttonContainer">
+        <div class="categoryHeader">Softdrinks</div>
+    </div>
+    <div id="wineButtons" class="buttonContainer">
+        <div class="categoryHeader">Wine</div>
+    </div>
+    <div id="shotsButtons" class="buttonContainer">
+        <div class="categoryHeader">Shots</div>
+    </div>
+    <div id="longdrinksButtons" class="buttonContainer">
+        <div class="categoryHeader">Longdrinks</div>
+    </div>
+
+    <div id="results">
+        <h3>Product Counts</h3>
+        <ul id="resultList"></ul>
+        <p id="grandTotal">Grand Total: €0.00</p>
+        <p id="totalClicks">Total Drinks Sold: 0</p>
+    </div>
+
+    <button id="resetButton">Reset Counts</button>
+    <button id="downloadButton">Download as TXT</button>
+
+    <script>
+        // Product list with prices and categories
+        const products = [
+            { name: "Diekirch S", price: 4, category: "Beer" },
+            { name: "Diekirch L", price: 6, category: "Beer" },
+            { name: "Grand-Cru S", price: 5, category: "Beer" },
+            { name: "Grand-Cru L", price: 7, category: "Beer" },
+            { name: "Hoegarden S", price: 6, category: "Beer" },
+            { name: "Hoegarden L", price: 8.5, category: "Beer" },
+            { name: "Tripel S", price: 7, category: "Beer" },
+            { name: "Tripel L", price: 11, category: "Beer" },
+            { name: "Franziskaner S", price: 5, category: "Beer" },
+            { name: "Franziskaner L", price: 7, category: "Beer" },
+            { name: "IPA S", price: 6, category: "Beer" },
+            { name: "IPA L", price: 9, category: "Beer" },
+            { name: "Picon S", price: 6, category: "Beer" },
+            { name: "Picon L", price: 8, category: "Beer" },
+            { name: "Diekirch 0", price: 4, category: "Beer" },
+            { name: "Corona", price: 6, category: "Beer" },
+            { name: "Hoegarden Rosé", price: 5, category: "Beer" },
+            { name: "Cider", price: 5.5, category: "Beer" },
+            { name: "Monaco S", price: 4, category: "Beer" },
+            { name: "Monaco L", price: 6, category: "Beer" },
+            { name: "Panaché S", price: 4, category: "Beer" },
+            { name: "Panaché L", price: 6, category: "Beer" },
+            { name: "Pastis", price: 4, category: "Alcohol" },
+            { name: "Perroquet", price: 4.5, category: "Alcohol" },
+            { name: "Jameson", price: 8, category: "Alcohol" },
+            { name: "Sambuca", price: 6.5, category: "Alcohol" },
+            { name: "Martini", price: 6, category: "Alcohol" },
+            { name: "Baileys", price: 6.5, category: "Alcohol" },
+            { name: "Talisker", price: 12, category: "Alcohol" },
+            { name: "Bacardi 8", price: 10, category: "Alcohol" },
+            { name: "Averna", price: 8, category: "Alcohol" },
+            { name: "Jack Daniels", price: 8, category: "Alcohol" },
+            { name: "Soft", price: 3.5, category: "Softdrinks" },
+            { name: "Jus", price: 3.5, category: "Softdrinks" },
+            { name: "Eau", price: 3, category: "Softdrinks" },
+            { name: "Ginger Beer", price: 5.5, category: "Softdrinks" },
+            { name: "Red Bull", price: 5, category: "Softdrinks" },
+            { name: "Vin", price: 5, category: "Wine" },
+            { name: "Vin + Soft", price: 6, category: "Wine" },
+            { name: "Crémant", price: 8, category: "Wine" },
+            { name: "Tequilla", price: 4.5, category: "Shots" },
+            { name: "Gin", price: 4.5, category: "Shots" },
+            { name: "Vodka", price: 4.5, category: "Shots" },
+            { name: "Jacky", price: 4.5, category: "Shots" },
+            { name: "Get27", price: 4.5, category: "Shots" },
+            { name: "Jäger", price: 4.5, category: "Shots" },
+            { name: "Rhum", price: 4.5, category: "Shots" },
+            { name: "Cuba Libre", price: 10, category: "Longdrinks" },
+            { name: "Lemmy", price: 10, category: "Longdrinks" },
+            { name: "Vodka Tonic", price: 10, category: "Longdrinks" },
+            { name: "Gin Tonic", price: 10, category: "Longdrinks" },
+            { name: "Vodka Red Bull", price: 10, category: "Longdrinks" }
+        ];
+
+        // Retrieve product counts from localStorage, or initialize them if they don't exist
+        let productCounts = JSON.parse(localStorage.getItem('productCounts')) || {};
+        
+        // Initialize counts for any products not stored in localStorage
+        products.forEach(product => {
+            if (!productCounts[product.name]) {
+                productCounts[product.name] = { count: 0 };
+            }
+        });
+
+        // Function to create buttons for each product category
+        function createButtons() {
+            const categories = ["Beer", "Alcohol", "Softdrinks", "Wine", "Shots", "Longdrinks"];
+            categories.forEach(category => {
+                const categoryDiv = document.getElementById(category.toLowerCase() + 'Buttons');
+                const categoryProducts = products.filter(product => product.category === category);
+                categoryProducts.forEach(product => {
+                    const button = document.createElement('button');
+                    button.textContent = `${product.name} (€${product.price})`;
+                    button.onclick = () => {
+                        productCounts[product.name].count++;
+                        updateResults();
+                        saveToLocalStorage();
+                    };
+                    categoryDiv.appendChild(button);
+                });
+            });
+        }
+
+        // Function to update the results list and grand total
+        function updateResults() {
+            const resultList = document.getElementById('resultList');
+            resultList.innerHTML = ''; // Clear existing list
+            let grandTotal = 0;
+            let totalClicks = 0;
+
+            products.forEach(product => {
+                const count = productCounts[product.name].count;
+                const totalPrice = count * product.price;
+                const li = document.createElement('li');
+                li.textContent = `${product.name}: ${count} - Total: €${totalPrice.toFixed(2)}`;
+                resultList.appendChild(li);
+                grandTotal += totalPrice;
+                totalClicks += count;
+            });
+
+            document.getElementById('grandTotal').textContent = `Grand Total: €${grandTotal.toFixed(2)}`;
+            document.getElementById('totalClicks').textContent = `Total Drinks Sold: ${totalClicks}`;
+        }
+
+        // Function to save product counts to localStorage
+        function saveToLocalStorage() {
+            localStorage.setItem('productCounts', JSON.stringify(productCounts));
+        }
+
+        // Function to reset all product counts
+        document.getElementById('resetButton').onclick = () => {
+            const confirmation = confirm("Are you sure you want to reset all counts?");
+            if (confirmation) {
+                products.forEach(product => {
+                    productCounts[product.name].count = 0;
+                });
+                updateResults();
+                saveToLocalStorage();
+            }
+        };
+
+        // Function to download the product counts as a .txt file
+        document.getElementById('downloadButton').onclick = () => {
+            let fileContent = 'Product Counts:\n\n';
+            products.forEach(product => {
+                fileContent += `${product.name}: ${productCounts[product.name].count}\n`;
+            });
+            const blob = new Blob([fileContent], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'product_counts.txt';
+            link.click();
+        };
+
+        // Initialize the product buttons and results
+        createButtons();
+        updateResults();
+
+    </script>
+</body>
+</html>
